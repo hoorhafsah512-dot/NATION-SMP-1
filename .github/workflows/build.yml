@@ -1,0 +1,40 @@
+name: Build NationsSMP Plugin
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Clear any cached Citizens artifacts
+        run: rm -rf ~/.m2/repository/net/citizensnpcs/
+
+      - name: Build with Maven
+        run: mvn clean package -B -U
+
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NationsSMP-plugin
+          path: target/NationsSMP.jar
+          retention-days: 30
+
+      - name: Show JAR info
+        run: |
+          echo "Build complete!"
+          ls -lh target/NationsSMP.jar
